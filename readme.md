@@ -1,1 +1,1 @@
-Hi, this is my fist study project!
+Hi, this is my first study project!
