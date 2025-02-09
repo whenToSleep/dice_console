@@ -32,7 +32,7 @@ def dice(balances, result):
                 bet = int(dice_message[1])
                 if int(balances["player2"]) >= bet:
                     if bet <= balances["player1"] and bet > 0:
-                        player1_roll = 14
+                        player1_roll = roll_dice()
                         player2_roll = roll_dice()
 
                         print(f"Ваша ставка: {bet}!")
