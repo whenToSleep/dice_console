@@ -1,7 +1,7 @@
 import random
 
 def roll_dice(): #объявление функции, что не принимает аргументы
-    return random.randint(1,6) + random.randint(1,6)
+    return sum(random.choices(range(1, 7), k=2)) # Бросает кубик дважды и суммирует
 
 def main(): # Объявляем основную функцию main(), в которой будет логика игры.
     balances= {
@@ -25,7 +25,7 @@ def start_bot():
 
 def dice(balances, result):
     while True:
-        print(f"Ваш баланс: {balances["player1"]}")
+        print(f"Ваш баланс: {int(balances["player1"])}")
         try:
             dice_message = input("Введите /dice, чтобы бросить кости (или введите /q для выхода): ").split()
             if dice_message[0] == "/dice":
@@ -39,17 +39,21 @@ def dice(balances, result):
                     print(f"Второй игрок бросил: 🎲 {player2_roll}")
 
                     if player2_roll > player1_roll:
-                        print(f'Второй игрок победил в этом раунде, он получает + {bet}')
+                        reward = update_balance("player2", "player1", bet, balances, result)
+                        print(f'Второй игрок победил в этом раунде, он получает + {reward}')
 
-                        update_balance("player2", "player1", bet, balances, result)
-                        if balances["player1"] == 0:
+                        if int(balances["player1"]) == 0:
                             game_over(balances, result)
                             break
 
 
                     elif player1_roll > player2_roll:
-                        print(f'Вы победили в этом раунде!!! Вы получаете + {bet}')
-                        update_balance("player1", "player2", bet, balances, result)
+                        reward = update_balance("player1", "player2", bet, balances, result)
+                        print(f'Вы победили в этом раунде!!! Вы получаете + {reward}')
+
+                        if int(balances["player2"]) <= 0:
+                            game_over(balances, result)
+                            break
 
                     elif player1_roll == player2_roll:
                         print('Товарищи, ничья, победила дружба!')
@@ -70,26 +74,26 @@ def dice(balances, result):
 
 
 def update_balance(winner, loser, amount, balances, result):
-    balances[winner] += amount
     balances[loser] -= amount
+    bank_commission = amount * 0.01 # 1% от ставки
+    reward = amount - bank_commission
+    balances['bank'] += bank_commission
+    balances[winner] += reward
     result[winner] += 1
+    return reward
+
 
 def game_over(balances, result):
-    if result["player1"] > result["player2"]:
+    if balances["player1"] > balances["player2"]:
         print("Хорош, чувак, победил против ИИ")
         print(f"Ваши результаты: Побед - {result["player1"]}, Баланс - {balances["player1"]}")
         print(f"Банк заработал {balances["bank"]}")
-    elif result["player1"] < result["player2"]:
+    elif balances["player1"] < balances["player2"]:
         print("К успеху шёл, в следующий раз повезёт")
         print(f"Ваши результаты: Побед - {result["player1"]}, Баланс - {balances["player1"]}")
         print(f"Банк заработал {balances["bank"]}")
     elif result["player1"] == 0 and result["player2"] == 0:
         print("Даже не попробовал сыграть((((")
-    elif result["player1"] == result["player2"]:
-        print("Победила дружба")
-        print(f"Ваши результаты: Побед - {result["player1"]}, Баланс - {balances["player1"]}")
-        print(f"Банк заработал {balances["bank"]}")
-
 
     print("Спасибо за игру, чел!")
 
